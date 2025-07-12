@@ -54,6 +54,18 @@ app.post('/posts', async (req, res) => {
   }
 });
 
+//Eliminar post
+app.delete('/posts/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM posts WHERE id = $1', [id]);
+    res.json({ mensaje: 'Post eliminado correctamente' });
+  } catch (error) {
+    console.error('Error al eliminar post:', error.message);
+    res.status(500).json({ error: 'No se pudo eliminar el post' });
+  }
+});
+
 // Iniciar el servidor
 app.get('/', (req, res) => {
   res.send('Servidor funcionando 🚀');
@@ -63,3 +75,19 @@ app.listen(3000, () => {
   console.log('Servidor corriendo en http://localhost:3000');
 });
 console.log("Después de app.listen");
+
+
+// Agregar like
+app.put('/posts/like/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      'UPDATE posts SET likes = likes + 1 WHERE id = $1 RETURNING *',
+      [id]
+    );
+    res.status(200).json(result.rows[0]); // Devuelve el post actualizado
+  } catch (error) {
+    console.error('Error al dar like:', error.message);
+    res.status(500).json({ error: 'No se pudo dar like al post' });
+  }
+});

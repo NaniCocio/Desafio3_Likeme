@@ -24,9 +24,23 @@ function App() {
 
   // este método se utilizará en el siguiente desafío
   const like = async (id) => {
-    await axios.put(urlBaseServer + `/posts/like/${id}`);
-    getPosts();
-  };
+  try {
+    // Actualiza el número de likes en pantalla (estado local)
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.id === id ? { ...post, likes: post.likes + 1 } : post
+      )
+    );
+
+    // Luego, actualiza la base de datos
+    await axios.put(`${urlBaseServer}/posts/like/${id}`);
+
+    // Opcional: vuelve a cargar desde el servidor para mantener consistencia
+    // getPosts();
+  } catch (error) {
+    console.error("Error al dar like:", error);
+  }
+};
 
   // este método se utilizará en el siguiente desafío
   const eliminarPost = async (id) => {
